@@ -74,7 +74,6 @@ tar xjvf ${BOSH_COMPILE_TARGET}/protobuf-${PROTOBUF_VERSION}.tar.bz2
   ./configure --prefix=$PREFIX
   make -j${CPUS}
   make install
-  
 )
 
 # Protobuf-c
@@ -88,19 +87,26 @@ tar xvfz protobuf-c-1.2.1.tar.gz
   make install
 )
 
+export LD_LIBRARY_PATH=${BOSH_INSTALL_TARGET}/lib
+tar xvf riemann-c-client-1.10.2.tar.gz
+(
+  cd riemann-c-client-riemann-c-client-1.10.2
+  autoreconf -i --include /usr/share/aclocal
+  ./configure --prefix=${BOSH_INSTALL_TARGET}
+  make -j${CPUS}
+  make install
+)
 
-export LD_LIBRARY_PATH="/var/vcap/packages/python/lib:/var/vcap/packages/yajl/lib"
-tar xvjf collectd-5.5.0.tar.bz2
+export LD_LIBRARY_PATH="/var/vcap/packages/yajl/lib"
+tar xvjf collectd-5.7.2.tar.bz2
 (
   export PKG_CONFIG_PATH=${BOSH_INSTALL_TARGET}/lib/pkgconfig
   export CPPFLAGS="-I${BOSH_INSTALL_TARGET}/include"
   export LDFLAGS="-L${BOSH_INSTALL_TARGET}/lib/"
   export PATH=${PATH}:${BOSH_INSTALL_TARGET}/bin
-  cd collectd-5.5.0
+  cd collectd-5.7.2
   ./configure --prefix=${BOSH_INSTALL_TARGET} \
-      --enable-write_riemann \
-      --enable-python --with-python=/var/vcap/packages/python/bin/python \
-      --enable-curl-json --with-libyajl=/var/vcap/packages/yajl 
-
+    --enable-write_riemann \
+    --enable-curl-json --with-libyajl=/var/vcap/packages/yajl
   make -j${CPUS} install
 )
